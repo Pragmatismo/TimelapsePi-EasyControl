@@ -7,4 +7,4 @@ The aim of this project is to create a simple and highly functional interface to
 
 Automated processes will be able to upload these at certain intervals to online resources, allowing a website to keep an automatically updated log of progress.  
   
-This is a multistage project and will grow to include abilities such as recording sensor data, intergratng that data with the movies and eventually tasks of acutation and automaion.  The primary purpose will be to help gardeners visualize the multistaege development of their plants and to learn about botany so future development will be along such lines.  
+This is a multistage project and will grow to include abilities such as recording sensor data, integratng that data with the movies and eventually tasks of acutation and automation.  The primary purpose will be to help gardeners visualize the multistage development of their plants and to learn about botany so future development will be along such lines.  
