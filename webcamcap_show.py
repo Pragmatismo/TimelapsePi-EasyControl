@@ -170,7 +170,15 @@ while not crashed:
         print("Waiting for input before taking next image...")
         tp = raw_input("press return to take picture; ")
         if tp == "q":
+            print("---bye!")
             exit()
+        elif tp == "o":
+            if onion == True:
+                onion = False
+                print("---Turning onion mode off")
+            else:
+                onion = True
+                print("---Turning onion mode on")
         clock.tick(20)
     if loop == True:
         pygame.time.wait(num)
