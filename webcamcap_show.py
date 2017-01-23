@@ -140,28 +140,31 @@ def show_pic(imgtaken, x=0,y=0):
     gameDisplay.blit(imgtaken, (x,y))
 
 gameDisplay.fill(white)
-imgtaken = photo()
-imgtaken = pygame.image.load(imgtaken)
+if onion == True:
+    imgtaken = photo()
+    imgtaken = pygame.image.load(imgtaken)
+    gameDisplay.blit(imgtaken, (0,0))
+    pygame.display.update()
 
 while not crashed:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             crashed = True
 
-    gameDisplay.blit(imgtaken, (0,0))
-    pygame.display.update()
-
     if onion == True:
         penImg = imgtaken
+        penImg.set_alpha(255)
         imgtaken = photo()
         imgtaken = pygame.image.load(imgtaken)
-        penImg.set_alpha(255)
         gameDisplay.blit(penImg, (0,0))
         imgtaken.set_alpha(100)
     else:
         imgtaken = photo()
         imgtaken = pygame.image.load(imgtaken)
-        gameDisplay.fill(white)
+        #gameDisplay.fill(white)
+
+    gameDisplay.blit(imgtaken, (0,0))
+    pygame.display.update()
 
     if trig == True:
         print("Waiting for input before taking next image...")
