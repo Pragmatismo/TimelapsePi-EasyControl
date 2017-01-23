@@ -3,6 +3,7 @@ import time
 import os
 import sys
 import pygame
+from PIL import Image
 
 print("")
 print("")
@@ -74,7 +75,7 @@ def photo():
 
 def TRIGGERED():
     while True:
-        red = raw_input("press return to take picture")
+        red = raw_input("press return to take picture; ")
         if red == "q":
             exit()
         else:
@@ -91,6 +92,7 @@ if 'wp' in sys.argv or 'wallpaper' in sys.argv:
 
 loop = False
 trig = False
+onion = False
 for argu in sys.argv[1:]:
     try:
         thearg = str(argu).split('=')[0]
@@ -100,7 +102,7 @@ for argu in sys.argv[1:]:
     if thearg == 'cap' or thearg =='cappath':
         cappath = str(argu).split('=')[1]
 
-    if thearg == 'l' or thearg == 'looped':
+    elif thearg == 'l' or thearg == 'looped':
         try:
             num = int(str(argu).split('=')[1])
         except:
@@ -108,8 +110,10 @@ for argu in sys.argv[1:]:
             num = 10
         loop = True
 
-    if thearg == 't' or thearg == 'TRIGGERED':
+    elif thearg == 't' or thearg == 'TRIGGERED':
         trig = True
+    elif thearg == 'o' or thearg == 'onion':
+        onion = True
 
 print(" Saving files to, " + str(cappath))
 
@@ -132,24 +136,36 @@ clock = pygame.time.Clock()
 crashed = False
 
 
-def show_pic(x=0,y=0):
-    gameDisplay.blit(lastImg, (x,y))
+def show_pic(imgtaken, x=0,y=0):
+    gameDisplay.blit(imgtaken, (x,y))
+
+gameDisplay.fill(white)
+imgtaken = photo()
+imgtaken = pygame.image.load(imgtaken)
 
 while not crashed:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             crashed = True
 
-    gameDisplay.fill(white)
-    imgtaken = photo()
-    lastImg = pygame.image.load(imgtaken)
-    show_pic()
-
-
+    gameDisplay.blit(imgtaken, (0,0))
     pygame.display.update()
+
+    if onion == True:
+        penImg = imgtaken
+        imgtaken = photo()
+        imgtaken = pygame.image.load(imgtaken)
+        penImg.set_alpha(255)
+        gameDisplay.blit(penImg, (0,0))
+        imgtaken.set_alpha(100)
+    else:
+        imgtaken = photo()
+        imgtaken = pygame.image.load(imgtaken)
+        gameDisplay.fill(white)
+
     if trig == True:
         print("Waiting for input before taking next image...")
-        tp = raw_input("press return to take picture")
+        tp = raw_input("press return to take picture; ")
         if tp == "q":
             exit()
         clock.tick(20)
