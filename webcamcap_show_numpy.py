@@ -125,7 +125,7 @@ numpy_pic_b = numpy.array(pil_b_photo)
 mask  = numpy_pic_b > numpy_pic + 30 #the +30 gets rid of noise
 mask2 = numpy_pic_b < numpy_pic - 30
 lol = mask + mask2
-
+e_pic = numpy_pic.copy()
 
 num = 0
 while not crashed:
@@ -145,9 +145,9 @@ while not crashed:
     numpy_pic = numpy.array(pil_c_photo)
 
     print numpy_pic.size
-    print len(numpy_pic[3])
+    #print len(numpy_pic[3])
     print "###"
-    print numpy_pic[1:,1,1]
+    #print numpy_pic[1:,1,1]
 
     #a = np.arange(100)
     print "##########"
@@ -163,16 +163,16 @@ while not crashed:
     #    numpy_pic[mask] = 0+(x/10) # numpy_pic[mask] / numpy_pic[mask]+(numpy_pic[mask]/numpy_pic[mask])
 
 
-    print numpy_pic[1:,1,1]
-    print numpy_pic.min()
+    #print numpy_pic[1:,1,1]
+    #print numpy_pic.min()
     print "###"
-    print numpy_pic.shape #Array dimensions
-    print numpy_pic.ndim #Number of array dimensions
-    print numpy_pic.dtype #Data type of array elements
-    print numpy_pic.dtype.name #Name of data type
-    print numpy_pic.mean()
-    print numpy_pic.max()
-    print numpy_pic.min()
+    #print numpy_pic.shape #Array dimensions
+    #print numpy_pic.ndim #Number of array dimensions
+    #print numpy_pic.dtype #Data type of array elements
+    #print numpy_pic.dtype.name #Name of data type
+    #print numpy_pic.mean()
+    #print numpy_pic.max()
+    #print numpy_pic.min()
     #print numpy.info(numpy.ndarray.dtype)
     #print numpy_pic.astype(int)
 
@@ -185,27 +185,29 @@ while not crashed:
 
     #mask  = numpy_pic_b > numpy_pic + 30 #the +30 gets rid of noise
     #mask2 = numpy_pic_b < numpy_pic - 30
-    maskr = numpy_pic[:, :, 0] > numpy_pic_b[:, :, 0] + 30
-    maskg = numpy_pic[:, :, 1] > numpy_pic_b[:, :, 1] + 30
-    maskb = numpy_pic[:, :, 2] > numpy_pic_b[:, :, 2] + 30
-    maskr2 = numpy_pic[:, :, 0] < numpy_pic_b[:, :, 0] - 30
-    maskg2 = numpy_pic[:, :, 1] < numpy_pic_b[:, :, 1] - 30
-    maskb2 = numpy_pic[:, :, 2] < numpy_pic_b[:, :, 2] - 30
+    margin = 20
+    maskr = numpy_pic[:, :, 0] < numpy_pic_b[:, :, 0] - margin
+    maskg = numpy_pic[:, :, 1] < numpy_pic_b[:, :, 1] - margin
+    maskb = numpy_pic[:, :, 2] < numpy_pic_b[:, :, 2] - margin
+    maskr2 = numpy_pic[:, :, 0] > numpy_pic_b[:, :, 0] + margin
+    maskg2 = numpy_pic[:, :, 1] > numpy_pic_b[:, :, 1] + margin
+    maskb2 = numpy_pic[:, :, 2] > numpy_pic_b[:, :, 2] + margin
     #numpy_pic[mask] = [0, 0, 255]
 
     #lol_old = lol
     #lol = mask + mask2
     #lol = lol + lol_old
-    persist = False
-    if persist == True:
+    persist = 'ohhh'
+    if persist == 'True':
         numpy_pic[maskr] = [255, 0, 0]
         numpy_pic[maskg] = [0, 255, 0]
         numpy_pic[maskb] = [0, 0, 255]
+        numpy_pic[maskb2] = [0, 0, 100]
         numpy_pic[maskr2] = [100, 0, 0]
         numpy_pic[maskg2] = [0, 100, 0]
-        numpy_pic[maskb2] = [0, 0, 100]
         Image.fromarray(numpy_pic).save(e_photo)
-    else:
+    elif persist == 'False':
+        old_e = e_pic
         e_pic = numpy_pic.copy()
         e_pic[maskr] = [255, 0, 0]
         e_pic[maskg] = [0, 255, 0]
@@ -213,6 +215,39 @@ while not crashed:
         e_pic[maskr2] = [100, 0, 0]
         e_pic[maskg2] = [0, 100, 0]
         e_pic[maskb2] = [0, 0, 100]
+        show1 = 'waa'
+        if show1 == '1':
+            e_pic = ((e_pic/4) - (numpy_pic))*3
+            e_pic = e_pic / 3 + old_e / 2
+        elif show1 == 'tripsy':
+            e_pic = ((e_pic/4) - (numpy_pic))*3
+            e_pic = e_pic - old_e / 2
+        elif show1 == 'waa':
+            e_pic = ((e_pic/4) - (numpy_pic))*3
+            #e_pic = old_e * 0.8 + e_pic * 0.2
+        Image.fromarray(e_pic).save(e_photo)
+
+    elif persist == 'ohhh':
+        old_e = e_pic.copy()
+        mask_b_pic = numpy_pic.copy()
+        mask_d_pic = numpy_pic.copy()
+        mask_b_pic[maskr] = [255, 255, 255]
+        mask_b_pic[maskg] = [255, 255, 255]
+        mask_b_pic[maskb] = [255, 255, 255]
+        mask_d_pic[maskr2] = [0, 0, 0]
+        mask_d_pic[maskg2] = [0, 0, 0]
+        mask_d_pic[maskb2] = [0, 0, 0]
+        #e_pic = e_pic/6 + old_e
+        e_pic = [200, 200, 0]
+        #e_pic = e_pic/2 - ((mask_d_pic) + (mask_b_pic))
+        #e_pic = e_pic/2 + ((mask_d_pic) + (mask_b_pic))
+                                      #choose one of the following
+        #e_pic = mask_d_pic               #shows when pixel is darker than it was
+        #e_pic = mask_b_pic              #shows when pixel is lighter than prior
+        e_pic = mask_d_pic - mask_b_pic  #black execpt for movement
+        e_pic = mask_b_pic / (mask_d_pic / 100)  #black execpt for movement
+        #e_pic = mask_d_pic + mask_b_pic  #looks odd
+
         Image.fromarray(e_pic).save(e_photo)
 
     #plt.imshow(lol)
