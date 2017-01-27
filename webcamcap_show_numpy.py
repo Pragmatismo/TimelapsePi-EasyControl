@@ -132,12 +132,15 @@ while not crashed:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             crashed = True
+    timenow = time.time()
+    e_photo = str(timenow).split(".")[0]
+    e_photo= "numpy_"+str(timenow)+".jpg"
     num = num + 1
 
     b_photo = c_photo
 
     c_photo = photo()
-    numpy_pic_b = numpy_pic
+    numpy_pic_b = numpy_pic.copy()
     pil_c_photo = Image.open(c_photo)
     numpy_pic = numpy.array(pil_c_photo)
 
@@ -193,21 +196,28 @@ while not crashed:
     #lol_old = lol
     #lol = mask + mask2
     #lol = lol + lol_old
-    numpy_pic[maskr] = [255, 0, 0]
-    numpy_pic[maskg] = [0, 255, 0]
-    numpy_pic[maskb] = [0, 0, 255]
-    numpy_pic[maskr2] = [100, 0, 0]
-    numpy_pic[maskg2] = [0, 100, 0]
-    numpy_pic[maskb2] = [0, 0, 100]
+    persist = False
+    if persist == True:
+        numpy_pic[maskr] = [255, 0, 0]
+        numpy_pic[maskg] = [0, 255, 0]
+        numpy_pic[maskb] = [0, 0, 255]
+        numpy_pic[maskr2] = [100, 0, 0]
+        numpy_pic[maskg2] = [0, 100, 0]
+        numpy_pic[maskb2] = [0, 0, 100]
+        Image.fromarray(numpy_pic).save(e_photo)
+    else:
+        e_pic = numpy_pic.copy()
+        e_pic[maskr] = [255, 0, 0]
+        e_pic[maskg] = [0, 255, 0]
+        e_pic[maskb] = [0, 0, 255]
+        e_pic[maskr2] = [100, 0, 0]
+        e_pic[maskg2] = [0, 100, 0]
+        e_pic[maskb2] = [0, 0, 100]
+        Image.fromarray(e_pic).save(e_photo)
 
-
-    timenow = time.time()
-    e_photo = str(timenow).split(".")[0]
-    e_photo= "numpy_"+str(timenow)+".jpg"
     #plt.imshow(lol)
     #plt.show()
-    #e_photo =
-    Image.fromarray(numpy_pic).save(e_photo)
+    #Image.fromarray(numpy_pic).save(e_photo)
     onscreen = pygame.image.load(e_photo)
     gameDisplay.blit(onscreen, (0,0))
     pygame.display.update()
