@@ -126,6 +126,7 @@ mask  = numpy_pic_b > numpy_pic + 30 #the +30 gets rid of noise
 mask2 = numpy_pic_b < numpy_pic - 30
 lol = mask + mask2
 e_pic = numpy_pic.copy()
+e_pic[:,:,:] = 0  #hash this out to start with a photo 
 
 num = 0
 colour_values = []
@@ -192,7 +193,7 @@ while not crashed:
 
     #mask  = numpy_pic_b > numpy_pic + 30 #the +30 gets rid of noise
     #mask2 = numpy_pic_b < numpy_pic - 30
-    margin = 25
+    margin = 15
     maskr = numpy_pic[:, :, 0] < numpy_pic_b[:, :, 0] - margin
     maskg = numpy_pic[:, :, 1] < numpy_pic_b[:, :, 1] - margin
     maskb = numpy_pic[:, :, 2] < numpy_pic_b[:, :, 2] - margin
@@ -238,15 +239,27 @@ while not crashed:
         old_e = e_pic.copy()
         mask_b_pic = numpy_pic.copy()
         mask_d_pic = numpy_pic.copy()
+        mask_m_pic = numpy_pic.copy()
         e_pic[:,:,2] = 0
         e_pic[:,:,1] = 0
         e_pic[:,:,0] = 0
         mask_b_pic[maskr] = [255, 255, 255]
         mask_b_pic[maskg] = [255, 255, 255]
         mask_b_pic[maskb] = [255, 255, 255]
-        mask_d_pic[maskr2] = [0, 0, 0]
-        mask_d_pic[maskg2] = [0, 0, 0]
-        mask_d_pic[maskb2] = [0, 0, 0]
+        #mask_d_pic[maskr2] = [0, 0, 0]
+        #mask_d_pic[maskg2] = [0, 0, 0]   -two tone, good for many of the below modes
+        #mask_d_pic[maskb2] = [0, 0, 0]
+        mask_d_pic[maskr2] = [255, 255, 255]
+        mask_d_pic[maskg2] = [255, 255, 255]
+        mask_d_pic[maskb2] = [255, 255, 255]
+
+        m_mask = mask_b_pic[:, :, 0] < 254
+        mask_m_pic[m_mask] = [0,0,0]
+
+        #m_mask = mask_d_pic[:, :, 0] < 254
+        #mask_m_pic[m_mask] = [100,0,0]
+
+        e_pic =  mask_m_pic + old_e #_pic
         #e_pic = e_pic/6 + old_e
 
         #e_pic = e_pic/2 - ((mask_d_pic) + (mask_b_pic))
@@ -254,10 +267,14 @@ while not crashed:
                                       #choose one of the following
         #e_pic = mask_d_pic               #shows when pixel is darker than it was
         #e_pic = mask_b_pic              #shows when pixel is lighter than prior
-        e_pic = mask_d_pic - mask_b_pic  #black execpt for movement
+        #e_pic = mask_d_pic - mask_b_pic  #black execpt for movement
         #e_pic = mask_b_pic / (mask_d_pic / 100)  #odd
         #e_pic = mask_d_pic + mask_b_pic  #looks odd
         #e_pic = mask_d_pic - (old_e/3)*2  #persists and looks cool
+        #e_pic = ((mask_d_pic + mask_b_pic) - (old_e/8)*2)
+        #e_pic = ( ((mask_d_pic + mask_b_pic) ) - (old_e)) #* 2
+
+
         Image.fromarray(e_pic).save(e_photo)
         r_sum = numpy_pic[:,:,0].sum()
         g_sum = numpy_pic[:,:,1].sum()
