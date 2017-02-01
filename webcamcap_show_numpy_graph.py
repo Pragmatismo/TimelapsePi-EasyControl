@@ -126,8 +126,9 @@ mask  = numpy_pic_b > numpy_pic + 30 #the +30 gets rid of noise
 mask2 = numpy_pic_b < numpy_pic - 30
 lol = mask + mask2
 e_pic = numpy_pic.copy()
-e_pic[:,:,:] = 0  #hash this out to start with a photo 
+e_pic[:,:,:] = 0  #hash this out to start with a photo
 
+margin = 0
 num = 0
 colour_values = []
 
@@ -193,7 +194,8 @@ while not crashed:
 
     #mask  = numpy_pic_b > numpy_pic + 30 #the +30 gets rid of noise
     #mask2 = numpy_pic_b < numpy_pic - 30
-    margin = 15
+    margin = 21 # margin + 1
+    pygame.display.set_caption(str(margin))
     maskr = numpy_pic[:, :, 0] < numpy_pic_b[:, :, 0] - margin
     maskg = numpy_pic[:, :, 1] < numpy_pic_b[:, :, 1] - margin
     maskb = numpy_pic[:, :, 2] < numpy_pic_b[:, :, 2] - margin
@@ -259,7 +261,10 @@ while not crashed:
         #m_mask = mask_d_pic[:, :, 0] < 254
         #mask_m_pic[m_mask] = [100,0,0]
 
-        e_pic =  mask_m_pic + old_e #_pic
+        e_pic =  mask_m_pic #+ old_e #_pic
+        show_pic = e_pic + (numpy_pic/2)
+
+
         #e_pic = e_pic/6 + old_e
 
         #e_pic = e_pic/2 - ((mask_d_pic) + (mask_b_pic))
@@ -275,7 +280,8 @@ while not crashed:
         #e_pic = ( ((mask_d_pic + mask_b_pic) ) - (old_e)) #* 2
 
 
-        Image.fromarray(e_pic).save(e_photo)
+        #show_pic = e_pic
+        Image.fromarray(show_pic).save(e_photo)
         r_sum = numpy_pic[:,:,0].sum()
         g_sum = numpy_pic[:,:,1].sum()
         b_sum = numpy_pic[:,:,2].sum()
@@ -324,6 +330,7 @@ while not crashed:
         pygame.draw.line(gameDisplay, (255,50,100), (num, 600 - e_r_graph), (num, 600))
         pygame.draw.line(gameDisplay, (50,255,100), (num, 600 - (e_r_graph + e_g_graph)), (num, 600-e_r_graph))
         pygame.draw.line(gameDisplay, (50,50,255), (num, 600 - (e_r_graph + e_g_graph + e_b_graph)), (num, 600-(e_r_graph + e_g_graph)))
+
 
 
         #print "graph point: " + str(num) + " , " + str(e_red_graph)
