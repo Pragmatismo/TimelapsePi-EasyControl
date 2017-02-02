@@ -99,7 +99,7 @@ print(" Saving files to, " + str(cappath))
 pygame.init()
 display_width = x_dim
 display_height = y_dim
-gameDisplay = pygame.display.set_mode((display_width,display_height))
+gameDisplay = pygame.display.set_mode((display_width+75,display_height))
 pygame.display.set_caption('Most recent image')
 black = (0,0,0)
 white = (255,255,255)
@@ -113,6 +113,16 @@ from scipy.ndimage import gaussian_filter, median_filter
 
 def show_pic(imgtaken, x=0,y=0):
     gameDisplay.blit(imgtaken, (x,y))
+
+def draw_menu():
+    #gameDisplay.blit(button, (but1x,but1y))
+    ypos = 50
+    pygame.draw.rect(gameDisplay, (50,200,50), (10,  ypos+10,     50,ypos), 5)
+    pygame.draw.rect(gameDisplay, (50,200,50), (10,((ypos+10)*2), 50,ypos), 5)
+    pygame.draw.rect(gameDisplay, (50,200,50), (10,((ypos+10)*3), 50,ypos), 5)
+    pygame.draw.rect(gameDisplay, (50,200,50), (10,((ypos+10)*4), 50,ypos), 5)
+    pygame.draw.rect(gameDisplay, (50,200,50), (10,((ypos+10)*5), 50,ypos), 5)
+    pygame.draw.rect(gameDisplay, (50,200,50), (10,((ypos+10)*6), 50,ypos), 5)
 
 gameDisplay.fill(white)
 
@@ -130,9 +140,10 @@ lol = mask + mask2
 e_pic = numpy_pic.copy()
 e_pic[:,:,:] = 0  #hash this out to start with a photo
 
-margin = 0
+margin = 25
 num = 0
 colour_values = []
+font = pygame.font.SysFont("comicsansms", 72)
 
 def t_impcent(part):
     return 100 * float(part)/float(1096704000)
@@ -140,13 +151,12 @@ def s_impcent(part):
     return 100 * float(part)/float(365568000)
 
 
-but1x = 50
+but1x = 30
 but1y = 50
-button = pygame.Surface((but1x,but1y))
-button.fill((50,50,50))
-
+persistant = 0
 
 while not crashed:
+    gameDisplay.fill(white)
     for eve in pygame.event.get():
         #print("-------------")
         #print event
@@ -157,15 +167,36 @@ while not crashed:
             posx = int(eve.pos[0])
             posy = int(eve.pos[1])
             Mouse_Rect = pygame.Rect(posx, posy, 2, 2)
-            box_Rect = pygame.Rect(but1x, but1y, 50, 50)
+            ypos = 50
+            box_Rect = pygame.Rect(10, ypos+10, 50, ypos)
+            box2_Rect = pygame.Rect(10, ((ypos+10)*2), 50, ypos)
+            box3_Rect = pygame.Rect(10, ((ypos+10)*3), 50, ypos)
+            box4_Rect = pygame.Rect(10, ((ypos+10)*4), 50, ypos)
+            box5_Rect = pygame.Rect(10, ((ypos+10)*5), 50, ypos)
+            box6_Rect = pygame.Rect(10, ((ypos+10)*6), 50, ypos)
             if box_Rect.contains(Mouse_Rect):
-                print("IN THE BOx")
-                button.fill((100,100,255))
+                print("Button 1")
+                pygame.draw.rect(gameDisplay, (200,50,200), (15,65, 40,40), 15)
                 e_pic[:,:,:] = 0
                 old_e[:,:,:] = 0
-            else:
-                print("OUT THE BOX")
-                button.fill((200,200,5))
+            elif box2_Rect.contains(Mouse_Rect):
+                print("cycling persistance up")
+                persistant = persistant + 1
+            elif box3_Rect.contains(Mouse_Rect):
+                print("cycling persistance down")
+                persistant = persistant - 1
+                if persistant <= -1:
+                    persistant = -1
+            elif box4_Rect.contains(Mouse_Rect):
+                print("increasing margin")
+                margin = margin + 1
+            elif box5_Rect.contains(Mouse_Rect):
+                print("margin going down...")
+                margin = margin - 1
+                if margin <= 0:
+                    margin = 0
+            elif box6_Rect.contains(Mouse_Rect):
+                print(":)")
 
 
 
@@ -225,7 +256,7 @@ while not crashed:
 
     #mask  = numpy_pic_b > numpy_pic + 30 #the +30 gets rid of noise
     #mask2 = numpy_pic_b < numpy_pic - 30
-    margin = 25 # margin + 1
+
     pygame.display.set_caption(str(margin))
     maskr = numpy_pic[:, :, 0] < numpy_pic_b[:, :, 0] - margin
     maskg = numpy_pic[:, :, 1] < numpy_pic_b[:, :, 1] - margin
@@ -293,7 +324,17 @@ while not crashed:
         #m_mask = mask_d_pic[:, :, 0] < 254
         #mask_m_pic[m_mask] = [100,0,0]
 
-        e_pic =  mask_m_pic + old_e  #((old_e/10)*9)
+        if persistant == 0:
+            print("-no persist")
+        elif persistant >= 2:
+            e_pic = mask_m_pic + ((old_e/persistant)*(persistant-1))
+        elif persistant == -1:
+            e_pic = mask_m_pic + old_e
+        text = font.render(str(persistant), True, (0, 128, 0))
+        gameDisplay.blit(text, (20, 120))
+
+
+
         show_pic = e_pic + (numpy_pic/2)
 
         #show_pic = imresize(show_pic, (500, 500))
@@ -346,7 +387,7 @@ while not crashed:
     #plt.show()
     #Image.fromarray(numpy_pic).save(e_photo)
     onscreen = pygame.image.load(e_photo)
-    gameDisplay.blit(onscreen, (0,0))
+    gameDisplay.blit(onscreen, (75,0))
     for x in colour_values:
         num = x[0]
         r_graph = s_impcent(x[1]) #*2.5
@@ -383,8 +424,9 @@ while not crashed:
     #gameDisplay.blit(TextSurf, TextRect)
 
 
-    gameDisplay.blit(button, (but1x,but1y))
+    draw_menu()
     pygame.display.update()
+
 
     if trig == True:
         print("Waiting for input before taking next image...")
