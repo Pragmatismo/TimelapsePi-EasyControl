@@ -111,70 +111,78 @@ def edit_image(imgtaken):
     os.remove(imgtaken)                   #rm the file
     numpy_pic = numpy.array(pil_c_photo) #turn it into a numpy array
     edit_pic = numpy_pic.copy()
-    edit_pic = zoom(edit_pic, (0.5,0.5,1))
+    #edit_pic = zoom(edit_pic, (0.5,0.5,1))
 
 
-    ims = []
-    n=25
-    window = numpy.ones((n,n))
-    window /= numpy.sum(window)
-    cycle = cycle + 1
-    duharr = numpy.array([[ -1-0, 1-0, +1-0],
-                          [ -1+0, 0+0, +1+0],
-                          [ -1+0, 1+0, +1+0]]) # Gx + j*Gy
+    #ims = []
+    #n=25
+    #window = numpy.ones((n,n))
+    #window /= numpy.sum(window)
+    #cycle = cycle + 1
+    #duharr = numpy.array([[ -1-0, 1-0, +1-0],
+#                          [ -1+0, 0+0, +1+0],
+#                          [ -1+0, 1+0, +1+0]]) # Gx + j*Gy
 
     #baharr = numpy.array([[ -(cycle/3) -3, cycle -0, +(cycle/3) -3],
     #                      [ -(cycle)   +0, 0+     0, +(cycle)   +0],
     #                      [ -(cycle/3) +3, cycle +0, +(cycle/3) +3]]) # Gx + j*Gy
 
-    scharr = numpy.array([[ -3-3j, 0-10j,  +3 -3j],
-                          [-10+0j, 0+ 0j, +10 +0j],
-                          [ -3+3j, 0+10j,  +3 +3j]]) # Gx + j*Gy
+    #scharr = numpy.array([[ -3-3j, 0-10j,  +3 -3j],
+#                          [-10+0j, 0+ 0j, +10 +0j],
+#                          [ -3+3j, 0+10j,  +3 +3j]]) # Gx + j*Gy
 
     #for d in range(3):
     #    im_conv_d = signal.convolve2d(edit_pic[:,:,d], window, mode="same", boundary="symm")
         #im_conv_d = signal.convolve2d(edit_pic, scharr, boundary='symm', mode='same')
         #ims.append(im_conv_d)
 
-    red = signal.convolve2d(edit_pic[:,:,0], duharr, boundary='symm', mode='same')
+    #red = signal.convolve2d(edit_pic[:,:,0], duharr, boundary='symm', mode='same')
     #green = signal.convolve2d(edit_pic[:,:,1], baharr, boundary='symm', mode='same')
     #blue = signal.convolve2d(edit_pic[:,:,2], scharr, boundary='symm', mode='same')
     #blue = green.copy()
     #for d in range(3):
 
-    blue = red.copy()
-    green = red.copy()
+    #blue = red.copy()
+    #green = red.copy()
 
-    for y in range(len(blue)):
-        for x in range(len(blue[1])):
-            #print blue[y][x]
-            #exit()
-            if blue[y][x] >= 200:
-                blue[y][x] = blue[y][x] - 200
-            elif blue[y][x] >= 150:
-                blue[y][x] = 150 #blue[y][x] - 100
-            elif blue[y][x] >= 100:
-                blue[y][x] = 100 # blue[y][x] - 50
+    #for y in range(len(blue)):
+    #    for x in range(len(blue[1])):
+    #        #print blue[y][x]
+    #        #exit()
+    #        if blue[y][x] >= 200:
+    #            blue[y][x] = blue[y][x] - 200
+    #        elif blue[y][x] >= 150:
+    #            blue[y][x] = 150 #blue[y][x] - 100
+    #        elif blue[y][x] >= 100:
+    #            blue[y][x] = 100 # blue[y][x] - 50
 
-    for y in range(len(green)):
-        for x in range(len(green[1])-1):
-            if green[y][x] + cycle >= green[y][x+1] and green[y][x] - cycle <= green[y][x+1]:
-                green[y][x] = 0
+    #for y in range(len(green)):
+    #    for x in range(len(green[1])-1):
+    #        if green[y][x] + cycle >= green[y][x+1] and green[y][x] - cycle <= green[y][x+1]:
+    #            green[y][x] = 0
 
+    for x in range(edit_pic.shape[0] -1):
+        for y in range(edit_pic.shape[1]):
+            if edit_pic[x][y][1] > edit_pic[x+1][y][1]:
+                edit_pic[x][y][1] = 255
+            else:
+                edit_pic[x][y][1] = 10
+
+    #ims.append(green)
     #ims.append(blue)
     #ims.append(red)
     #ims.append(blue)
-    ims.append(red)
-    ims.append(green)
+    #ims.append(red)
     #ims.append(green)
-    ims.append(blue)
+    #ims.append(green)
+    #ims.append(blue)
     #print len(ims)
 
-    edit_pic = ims
-    edit_pic = numpy.stack(edit_pic, axis=2).astype("uint8")
+    #edit_pic = ims
+    #edit_pic = numpy.stack(edit_pic, axis=2).astype("uint8")
 
 
-    edit_pic = zoom(edit_pic, (2,2,1))
+    #edit_pic = zoom(edit_pic, (2,2,1))
 
     e_loc = imgtaken.split("/")
     e_path = ""
