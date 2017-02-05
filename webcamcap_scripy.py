@@ -104,12 +104,12 @@ def photo():
 def show_pic(imgtaken, x=0,y=0):
     gameDisplay.blit(imgtaken, (x,y))
 
-cycle = 1
+cycle = -1
 def edit_image(imgtaken):
     global cycle
     pil_c_photo = Image.open(imgtaken)    #load the just taken photo
+    os.remove(imgtaken)                   #rm the file
     numpy_pic = numpy.array(pil_c_photo) #turn it into a numpy array
-
     edit_pic = numpy_pic.copy()
     edit_pic = zoom(edit_pic, (0.5,0.5,1))
 
@@ -119,11 +119,15 @@ def edit_image(imgtaken):
     window = numpy.ones((n,n))
     window /= numpy.sum(window)
     cycle = cycle + 1
-    scharr = numpy.array([[ -0-0j, 0-0j,  +0 -0j],
-                          [ -0+0j, 0+ 0j, +cycle +0j],
-                          [ -0+0j, 0+0j,  +0 +0j]]) # Gx + j*Gy
+    duharr = numpy.array([[ -1-0, 1-0, +1-0],
+                          [ -1+0, 0+0, +1+0],
+                          [ -1+0, 1+0, +1+0]]) # Gx + j*Gy
 
-    baharr = numpy.array([[ -3-3j, 0-10j,  +3 -3j],
+    #baharr = numpy.array([[ -(cycle/3) -3, cycle -0, +(cycle/3) -3],
+    #                      [ -(cycle)   +0, 0+     0, +(cycle)   +0],
+    #                      [ -(cycle/3) +3, cycle +0, +(cycle/3) +3]]) # Gx + j*Gy
+
+    scharr = numpy.array([[ -3-3j, 0-10j,  +3 -3j],
                           [-10+0j, 0+ 0j, +10 +0j],
                           [ -3+3j, 0+10j,  +3 +3j]]) # Gx + j*Gy
 
@@ -132,22 +136,45 @@ def edit_image(imgtaken):
         #im_conv_d = signal.convolve2d(edit_pic, scharr, boundary='symm', mode='same')
         #ims.append(im_conv_d)
 
-    red = signal.convolve2d(edit_pic[:,:,0], scharr, boundary='symm', mode='same')
-    green = signal.convolve2d(edit_pic[:,:,1], baharr, boundary='symm', mode='same')
-    blue = signal.convolve2d(edit_pic[:,:,2], scharr, boundary='symm', mode='same')
-
+    red = signal.convolve2d(edit_pic[:,:,0], duharr, boundary='symm', mode='same')
+    #green = signal.convolve2d(edit_pic[:,:,1], baharr, boundary='symm', mode='same')
+    #blue = signal.convolve2d(edit_pic[:,:,2], scharr, boundary='symm', mode='same')
+    #blue = green.copy()
     #for d in range(3):
 
+    blue = red.copy()
+    green = red.copy()
+
+    for y in range(len(blue)):
+        for x in range(len(blue[1])):
+            #print blue[y][x]
+            #exit()
+            if blue[y][x] >= 200:
+                blue[y][x] = blue[y][x] - 200
+            elif blue[y][x] >= 150:
+                blue[y][x] = 150 #blue[y][x] - 100
+            elif blue[y][x] >= 100:
+                blue[y][x] = 100 # blue[y][x] - 50
+
+    for y in range(len(green)):
+        for x in range(len(green[1])-1):
+            if green[y][x] + cycle >= green[y][x+1] and green[y][x] - cycle <= green[y][x+1]:
+                green[y][x] = 0
+
+    #ims.append(blue)
+    #ims.append(red)
+    #ims.append(blue)
     ims.append(red)
-    ims.append(red)
-    ims.append(red)
-    print len(ims)
+    ims.append(green)
+    #ims.append(green)
+    ims.append(blue)
+    #print len(ims)
 
     edit_pic = ims
     edit_pic = numpy.stack(edit_pic, axis=2).astype("uint8")
 
 
-    edit_pic = zoom(edit_pic, (1.5,1.5,1))
+    edit_pic = zoom(edit_pic, (2,2,1))
 
     e_loc = imgtaken.split("/")
     e_path = ""
@@ -168,7 +195,6 @@ while not crashed:
 
     imgtaken = photo()
     edited_img = edit_image(imgtaken)
-    #os.remove(imgtaken)
     py_img = pygame.image.load(edited_img)
     gameDisplay.blit(py_img, (0,0))
 
