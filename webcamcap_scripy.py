@@ -6,6 +6,7 @@ import pygame
 from PIL import Image
 import numpy
 from scipy.ndimage.interpolation import zoom
+from scipy import signal
 
 
 print("")
@@ -103,19 +104,58 @@ def photo():
 def show_pic(imgtaken, x=0,y=0):
     gameDisplay.blit(imgtaken, (x,y))
 
+cycle = 1
 def edit_image(imgtaken):
+    global cycle
     pil_c_photo = Image.open(imgtaken)    #load the just taken photo
     numpy_pic = numpy.array(pil_c_photo) #turn it into a numpy array
 
     edit_pic = numpy_pic.copy()
     edit_pic = zoom(edit_pic, (0.5,0.5,1))
-    
+
+
+    ims = []
+    n=25
+    window = numpy.ones((n,n))
+    window /= numpy.sum(window)
+    cycle = cycle + 1
+    scharr = numpy.array([[ -0-0j, 0-0j,  +0 -0j],
+                          [ -0+0j, 0+ 0j, +cycle +0j],
+                          [ -0+0j, 0+0j,  +0 +0j]]) # Gx + j*Gy
+
+    baharr = numpy.array([[ -3-3j, 0-10j,  +3 -3j],
+                          [-10+0j, 0+ 0j, +10 +0j],
+                          [ -3+3j, 0+10j,  +3 +3j]]) # Gx + j*Gy
+
+    #for d in range(3):
+    #    im_conv_d = signal.convolve2d(edit_pic[:,:,d], window, mode="same", boundary="symm")
+        #im_conv_d = signal.convolve2d(edit_pic, scharr, boundary='symm', mode='same')
+        #ims.append(im_conv_d)
+
+    red = signal.convolve2d(edit_pic[:,:,0], scharr, boundary='symm', mode='same')
+    green = signal.convolve2d(edit_pic[:,:,1], baharr, boundary='symm', mode='same')
+    blue = signal.convolve2d(edit_pic[:,:,2], scharr, boundary='symm', mode='same')
+
+    #for d in range(3):
+
+    ims.append(red)
+    ims.append(red)
+    ims.append(red)
+    print len(ims)
+
+    edit_pic = ims
+    edit_pic = numpy.stack(edit_pic, axis=2).astype("uint8")
+
+
+    edit_pic = zoom(edit_pic, (1.5,1.5,1))
 
     e_loc = imgtaken.split("/")
     e_path = ""
     for e in range(len(e_loc)-1):
         e_path += "/" + str(e_loc[e])
-    e_path += "edited_" + str(e_loc[-1])
+
+    e_path = e_path[1:]
+    e_path += "/edited_" + str(e_loc[-1])
     Image.fromarray(edit_pic).save(e_path)
     print ("Edited picture at " + e_path)
     return e_path
