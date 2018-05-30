@@ -2,6 +2,7 @@
 import time
 import os
 import sys
+from picamera import PiCamera
 
 print("")
 print("")
@@ -11,9 +12,9 @@ print("     cap=/home/pi/folder/ to set caps path other than current dir")
 print("      ")
 pi_paper = False  #updates pi wall paper, use -nopaper to turn it off.
 
-s_val = "10"
-c_val = "20"
-g_val = "10"
+s_val = "0"   # saturation -100 to 100
+c_val = "0"   # contrast -100 to 100
+g_val = "800"  # iso 100 - 800
 b_val = "15"
 x_dim = 1600
 y_dim = 1200
@@ -54,20 +55,20 @@ except:
     print("Run cam_config.py to create one")
 
 # take and save photo
+camera = PiCamera()
+camera.resolution = (int(x_dim),int(y_dim))
+camera.contrast = int(c_val)
+camera.saturation = int(s_val)
+camera.iso =  int(g_val)
+camera.vflip = True
+time.sleep(1)
 def photo():
+
     timenow = time.time()
     timenow = str(timenow)[0:10]
     filename= "cap_"+str(timenow)+".jpg"
+    camera.capture(cappath+filename)
 
-    camera.resolution = (int(picam_dic['x_dim']),int(picam_dic['y_dim']))
-    camera.brightness = int(picam_dic['b_val'])
-    camera.contrast = int(picam_dic['c_val'])
-    camera.saturation = int(picam_dic['s_val'])
-    camera.iso =  int(picam_dic['g_val'])
-    camera.vflip = True
-    time.sleep(1)
-    camera.capture(caps_path+filename)
-    camera.close()
     print("Image taken and saved to "+cappath+filename)
     #os.system("gpicview " + cappath+filename)
     if pi_paper == True:
@@ -77,6 +78,7 @@ def TRIGGERED():
     while True:
         red = raw_input("press return to take picture")
         if red == "q":
+            camera.close()
             exit()
         else:
             photo()
@@ -120,3 +122,5 @@ elif trig == True:
     TRIGGERED()
 else:
     photo()
+
+camera.close()
